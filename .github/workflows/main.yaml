@@ -83,3 +83,6 @@ jobs:
           kubectl get all -n olumoko-voting-app
 
     environment: ${{ matrix.region }}
+
+
+####
