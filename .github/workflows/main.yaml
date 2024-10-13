@@ -69,6 +69,14 @@ jobs:
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.111.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
           sudo mv /tmp/eksctl /usr/local/bin
 
+      - name: Set EKS Cluster Name based on Region
+        run: |
+          if [[ "${{ matrix.region }}" == "us-west-2" ]]; then
+            echo "EKS_CLUSTER_NAME=${{ secrets.US_WEST_2_EKS_CLUSTER_NAME }}" >> $GITHUB_ENV
+          elif [[ "${{ matrix.region }}" == "eu-west-1" ]]; then
+            echo "EKS_CLUSTER_NAME=${{ secrets.EU_WEST_1_EKS_CLUSTER_NAME }}" >> $GITHUB_ENV
+          fi
+
       - name: Set up kubeconfig
         run: |
           aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ secrets.EKS_CLUSTER_NAME }}
