@@ -75,8 +75,8 @@ jobs:
 
       - name: Deploy to EKS Cluster
         run: |
-          kubectl apply -f K8-manifest/ && \
-          kubectl apply -f K8-manifest/logging/
+          kubectl apply -f k8-manifest/ && \
+          kubectl apply -f k8-manifest/logging/
 
       - name: Verify Deployment
         run: |
