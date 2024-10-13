@@ -35,7 +35,7 @@ metadata:
     name: voting-service
     app: demo-voting-app
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 80
