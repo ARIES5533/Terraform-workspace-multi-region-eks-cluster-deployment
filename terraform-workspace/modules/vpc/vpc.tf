@@ -2,7 +2,7 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-  cluster_name = "olumoko"
+  cluster_name = "${terraform.workspace}-olumoko"
 }
 
 
