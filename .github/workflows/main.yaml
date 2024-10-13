@@ -39,11 +39,18 @@ jobs:
     needs: trivy_scan
 
 
+    #strategy:
+      #matrix:
+        #region:
+          #- eu-west-1
+         # - us-west-2
+    
     strategy:
       matrix:
-        region:
-          - eu-west-1
-          - us-west-2
+        region: [us-west-2, eu-west-1]
+        eks_cluster_name:
+          us-west-2: ${{ secrets.US_WEST_2_EKS_CLUSTER_NAME }}
+          eu-west-1: ${{ secrets.EU_WEST_1_EKS_CLUSTER_NAME }}
 
     steps:
       - name: Checkout code
@@ -69,17 +76,9 @@ jobs:
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.111.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
           sudo mv /tmp/eksctl /usr/local/bin
 
-      - name: Set EKS Cluster Name based on Region
-        run: |
-          if [[ "${{ matrix.region }}" == "us-west-2" ]]; then
-            echo "EKS_CLUSTER_NAME=${{ secrets.US_WEST_2_EKS_CLUSTER_NAME }}" >> $GITHUB_ENV
-          elif [[ "${{ matrix.region }}" == "eu-west-1" ]]; then
-            echo "EKS_CLUSTER_NAME=${{ secrets.EU_WEST_1_EKS_CLUSTER_NAME }}" >> $GITHUB_ENV
-          fi
-
       - name: Set up kubeconfig
         run: |
-          aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+          aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ matrix.eks_cluster_name.${{ matrix.region }} }}
 
       - name: Deploy to EKS Cluster
         run: |
