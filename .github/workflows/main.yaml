@@ -33,18 +33,14 @@ jobs:
           trivy image --severity HIGH,CRITICAL --format table ${{ secrets.VOTING_APP_IMAGE }}
           echo "Scanning Docker image for vulnerabilities for WORKER_APP..."
           trivy image --severity HIGH,CRITICAL --format table ${{ secrets.WORKER_APP_IMAGE }}
-  
+
   deploy:
     runs-on: ubuntu-latest
     needs: trivy_scan
 
     strategy:
       matrix:
-        include:
-          - region: us-west-2
-            eks_cluster_name: ${{ secrets.US_WEST_2_EKS_CLUSTER_NAME }}
-          - region: eu-west-1
-            eks_cluster_name: ${{ secrets.EU_WEST_1_EKS_CLUSTER_NAME }}
+        region: [us-west-2, eu-west-1]
 
     steps:
       - name: Checkout code
@@ -71,7 +67,11 @@ jobs:
 
       - name: Set up kubeconfig
         run: |
-          aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ matrix.eks_cluster_name }}
+          if [[ "${{ matrix.region }}" == "us-west-2" ]]; then
+            aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ secrets.US_WEST_2_EKS_CLUSTER_NAME }};
+          elif [[ "${{ matrix.region }}" == "eu-west-1" ]]; then
+            aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ secrets.EU_WEST_1_EKS_CLUSTER_NAME }};
+          fi
 
       - name: Deploy to EKS Cluster
         run: |
