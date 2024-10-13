@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deploy
+  namespace: olumoko-voting-app
+  labels:
+    name: postgres-deploy
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: postgres-pod
+      labels:
+        name: postgres-pod
+        app: demo-voting-app
+    spec:
+      containers:
+      - name: postgres
+        image: postgres
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            value: "postgres"
+          - name: POSTGRES_HOST_AUTH_METHOD
+            value: trust
+        # env:
+        # - name: DB_HOST
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: rds-postgres-secret
+        #       key: DB_HOST
+        # - name: DB_USER
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: rds-postgres-secret
+        #       key: DB_USER
+        # - name: DB_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: rds-postgres-secret
+        #       key: DB_PASSWORD
+        # - name: DB_NAME
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: rds-postgres-secret
+        #       key: DB_NAME
+
+
+
+
+
+
+
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: olumoko-voting-app
+  labels:
+     name: postgres-service
+     app: demo-voting-app
+spec:
+   ports:
+     - port: 5432
+       targetPort: 5432
+   selector:
+     name: postgres-pod
+     app: demo-voting-app
+         

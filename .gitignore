@@ -1,0 +1,31 @@
+#### Local .terraform directories
+**/.terraform/*
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Exclude sensitive files
+*.tfvars
+*.tfvars.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Exclude backup files created by Terraform
+*.backup
+
+# Ignore plan files (output of terraform plan)
+*.tfplan
+
+# Ignore lock files
+.terraform.lock.hcl
+
+# Ignore files related to Terraform provider plugins
+**/.terraform/plugins/
+
+# Igno

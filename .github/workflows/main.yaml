@@ -1,0 +1,85 @@
+name: Deploy to Multi-Region EKS Clusters
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  trivy_scan:
+    name: Scan Docker Image for Vulnerabilities
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.43.0/trivy_0.43.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.43.0_Linux-64bit.deb
+          trivy --version  # Verify Trivy installation
+
+      - name: Scan Docker image with Trivy
+        run: |
+          echo "Scanning Docker image for vulnerabilities for POSTGRES..."
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.POSTGRES_IMAGE }}
+          echo "Scanning Docker image for vulnerabilities for REDIS..."
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.REDIS_IMAGE }}
+          echo "Scanning Docker image for vulnerabilities for RESULT_APP..."
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.RESULT_APP_IMAGE }}
+          echo "Scanning Docker image for vulnerabilities for VOTING_APP..."
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.VOTING_APP_IMAGE }}
+          echo "Scanning Docker image for vulnerabilities for WORKER_APP..."
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.WORKER_APP_IMAGE }}
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: trivy_scan
+
+
+    strategy:
+      matrix:
+        region:
+          - eu-west-1
+          - us-west-2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          #aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ matrix.region }}
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/v1.26.3/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      - name: Install eksctl
+        run: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.111.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+
+      - name: Set up kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ matrix.region }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+      - name: Deploy to EKS Cluster
+        run: |
+          kubectl apply -f kubernetes/ && \
+          kubectl apply -f kubernetes/logging/
+
+      - name: Verify Deployment
+        run: |
+          kubectl get all -n olumoko-voting-app
+
+    environment: ${{ matrix.region }}

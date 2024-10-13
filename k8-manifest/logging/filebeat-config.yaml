@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: olumoko-voting-app
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: container
+      enabled: true
+      paths:
+        # Pattern of your path from which logs are taken as input
+        - /var/log/pods/eShoppe_eshoppe-*/*/*.log
+      exclude_files: ['unwantedfiles-*']
+
+      # To be used by Logstash for distinguishing index names while writing to Elasticsearch.
+      fields_under_root: true
+      fields:
+        index_prefix: eshopee-logs
+
+      # Enrich events with k8s and cloud metadata
+      processors:
+        - decode_json_fields:
+            fields: ["message"]
+            target: "json"
+            max_depth: 1
+        - add_cloud_metadata: {}
+        - add_host_metadata: {}
+        - add_kubernetes_metadata:
+            in_cluster: true
+            matchers:
+              - logs_path:
+                  logs_path: "/var/log/containers/"
+
+    # Send events to Logstash.
+    output.logstash:
+      enabled: true
+      hosts: ["logstash:9600"]
+
+    # You can set logging.level to debug to see the generated events by the running Filebeat instance.
+    logging.level: error
+    logging.to_files: false
+    logging.files:
+      path: /var/log/filebeat
+      name: filebeat
+      keepfiles: 7
+      permissions: 0644
