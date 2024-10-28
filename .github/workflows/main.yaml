@@ -7,32 +7,32 @@ on:
 
 jobs:
 
-  docker_build:
-    name: Build, Test & Push to DockerHub
-    runs-on: ubuntu-latest
+  # docker_build:
+  #   name: Build, Test & Push to DockerHub
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Docker build for testing
-        run: |
-          docker build -t aries5533/voting-app:latest -f ./mod/application/vote/Dockerfile ./mod/application/vote/
-          #docker build mod/application/vote --file mod/application/vote/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
-          #docker buildx build --file mod/application/vote/Dockerfile mod/application/vote --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
-          #docker build PIP/mod/application/vote . --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/olumoko_image:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
+  #     - name: Docker build for testing
+  #       run: |
+  #         docker build -t aries5533/voting-app:latest -f ./mod/application/vote/Dockerfile ./mod/application/vote/
+  #         #docker build mod/application/vote --file mod/application/vote/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+  #         #docker buildx build --file mod/application/vote/Dockerfile mod/application/vote --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+  #         #docker build PIP/mod/application/vote . --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+  #         docker tag ${{ secrets.DOCKERHUB_USERNAME }}/olumoko_image:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
   trivy_scan:
     name: Scan Docker Image for Vulnerabilities
     runs-on: ubuntu-latest
-    needs: [docker_build]
+    #needs: [docker_build]
 
     steps:
       - name: Check out code
