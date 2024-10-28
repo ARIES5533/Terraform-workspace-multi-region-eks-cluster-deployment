@@ -7,6 +7,26 @@ on:
 
 jobs:
 
+  docker_build:
+    name: Build, Test & Push to DockerHub
+    needs: [unit_testing]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker build for testing
+        run: |
+          docker build PIP/mod/application/vote --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/olumoko_image:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
+
   trivy_scan:
     name: Scan Docker Image for Vulnerabilities
     runs-on: ubuntu-latest
