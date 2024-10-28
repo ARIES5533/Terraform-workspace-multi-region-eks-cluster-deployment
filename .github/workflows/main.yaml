@@ -28,6 +28,7 @@ jobs:
 
   trivy_scan:
     name: Scan Docker Image for Vulnerabilities
+    needs: [docker_build]
     runs-on: ubuntu-latest
 
     steps:
