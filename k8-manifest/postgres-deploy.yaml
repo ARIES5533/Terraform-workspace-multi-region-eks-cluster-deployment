@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,36 +32,6 @@ spec:
             value: "postgres"
           - name: POSTGRES_HOST_AUTH_METHOD
             value: trust
-        # env:
-        # - name: DB_HOST
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: rds-postgres-secret
-        #       key: DB_HOST
-        # - name: DB_USER
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: rds-postgres-secret
-        #       key: DB_USER
-        # - name: DB_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: rds-postgres-secret
-        #       key: DB_PASSWORD
-        # - name: DB_NAME
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: rds-postgres-secret
-        #       key: DB_NAME
-
-
-
-
-
-
-
-
-
 
 ---
 apiVersion: v1
@@ -78,4 +49,4 @@ spec:
    selector:
      name: postgres-pod
      app: demo-voting-app
-         
+        

@@ -42,6 +42,15 @@ spec:
      app: demo-voting-app
          
 
+
+
+
+
+
+
+
+
+
 # env:
 #           - name: REDIS_HOST
 #             valueFrom:

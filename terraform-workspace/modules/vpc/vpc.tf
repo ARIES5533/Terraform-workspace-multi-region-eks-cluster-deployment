@@ -6,12 +6,12 @@ locals {
 }
 
 
-#########Create primary VPC in the eu-west-1 region#####################
-module "vpc_primary" {
+######### Create VPC #####################
+module "olumoko_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.13.0"
 
-  name = "olumoko-primary-vpc"
+  name = "olumoko-${terraform.workspace}-vpc"
   cidr = "10.0.0.0/16"
   azs  = slice(data.aws_availability_zones.available.names, 0, 3) # Corrected reference
 
@@ -33,57 +33,57 @@ module "vpc_primary" {
   }
 }
 
-output "vpc_primary_id" {
-  description = "The ID of the primary VPC in us-west-1"
-  value       = module.vpc_primary.vpc_id
+output "vpc_id" {
+  description = "The ID of the primary VPC"
+  value       = module.olumoko_vpc.vpc_id
 }
 
-output "vpc_primary_public_subnets" {
-  description = "The public subnet IDs of the primary VPC in us-west-1"
-  value       = module.vpc_primary.public_subnets
+output "vpc_public_subnets" {
+  description = "The public subnet IDs of the primary VPC"
+  value       = module.olumoko_vpc.public_subnets
 }
 
-output "vpc_primary_private_subnets" {
-  description = "The private subnet IDs of the primary VPC in us-west-1"
-  value       = module.vpc_primary.private_subnets
+output "vpc_private_subnets" {
+  description = "The private subnet IDs of the primary VPC"
+  value       = module.olumoko_vpc.private_subnets
 }
 
 
 ##########Define the primary RDS subnet group in the eu-west-1 region#########
-resource "aws_db_subnet_group" "primary" {
-  name        = "primary-db-subnet-group"
-  description = "Subnet group for primary RDS instance in us-west-1"
-  subnet_ids  = module.vpc_primary.private_subnets
+resource "aws_db_subnet_group" "olumoko-subnet" {
+  name        = "${terraform.workspace}-db-subnet-group"
+  description = "Subnet group for RDS instance"
+  subnet_ids  = module.olumoko_vpc.private_subnets
 
   tags = {
-    Name = "Olumoko-Primary-DB-Subnet-Group"
+    Name = "Olumoko-${terraform.workspace}-DB-Subnet-Group"
   }
 }
 
 
-output "vpc_primary_db_subnet_group_name" {
-  description = "The name of the primary database subnet group."
-  value       = aws_db_subnet_group.primary.name
+output "db_subnet_group_name" {
+  description = "The name of the database subnet group."
+  value       = aws_db_subnet_group.olumoko-subnet.name
 }
 
-output "vpc_primary_db_subnet_group_id" {
+output "vpc_db_subnet_group_id" {
   description = "The name of the primary database subnet group."
-  value       = aws_db_subnet_group.primary.id
+  value       = aws_db_subnet_group.olumoko-subnet.id
 }
 
 
 ##############
 
 
-##############Create VPC in primary region (us-east-1)#######################
+############## Create Security Group #######################
 module "security-group" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.2"
 
 
-  name = "olumoko-sg-1"
+  name = "olumoko-${terraform.workspace}-sg"
   description = "Security group"
-  vpc_id = module.vpc_primary.vpc_id
+  vpc_id = module.olumoko_vpc.vpc_id
 
     ingress_with_cidr_blocks = [
       {
@@ -119,28 +119,28 @@ module "security-group" {
       }
     ]
 
-    depends_on = [module.vpc_primary]
+    depends_on = [module.olumoko_vpc]
 
     tags = {
-        name = "olumoko-sg-1"
+        name = "olumoko-${terraform.workspace}-sg"
     }
        
 }
 
-output "primary_sg_id" {
-  description = "The ID of the primary security group in us-east-1"
+output "sg_id" {
+  description = "The ID of the primary security group"
   value       = module.security-group.security_group_id
 }
 
-##########Create Security Group for primary region DB (us-east-1)####################
+##########Create Security Group for DB ####################
 
-module "primary-security-group_db" {
+module "security-group-db" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.2"
 
-  name = "olumoko-primary_sg-db"
+  name = "olumoko-${terraform.workspace}-sg-db"
   description = "Allow traffic on PostgreSQL port 5432"
-  vpc_id = module.vpc_primary.vpc_id
+  vpc_id = module.olumoko_vpc.vpc_id
 
     ingress_with_cidr_blocks = [
       {
@@ -162,15 +162,15 @@ module "primary-security-group_db" {
       }
     ]
 
-    depends_on = [module.vpc_primary]
+    depends_on = [module.olumoko_vpc]
 
     tags = {
-        name = "olumoko-sg-db"
+        name = "olumoko-${terraform.workspace}-sg-db"
     }
        
 }
 
-output "primary_db_security_group_id" {
-  description = "The ID of the RDS security group in us-east-1"
-  value       = module.security-group.security_group_id
+output "db_security_group_id" {
+  description = "The ID of the RDS security group"
+  value       = module.security-group-db.security_group_id
 }

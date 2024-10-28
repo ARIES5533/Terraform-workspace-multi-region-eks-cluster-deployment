@@ -7,7 +7,7 @@ metadata:
     name: voting-app-deploy
     app: demo-voting-app
 spec:
-  replicas: 70
+  replicas: 1
   selector:
     matchLabels:
       name: voting-app-pod
@@ -29,8 +29,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: voting-service
+  name: voting-service  
   namespace: olumoko-voting-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-alb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
   labels:
     name: voting-service
     app: demo-voting-app

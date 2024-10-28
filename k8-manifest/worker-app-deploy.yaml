@@ -7,7 +7,7 @@ metadata:
     name: worker-app-deploy
     app: demo-voting-app
 spec:
-  replicas: 70
+  replicas: 2
   selector:
     matchLabels:
       name: worker-app-pod
@@ -22,3 +22,43 @@ spec:
       containers:
         - name: worker-app
           image: kodekloud/examplevotingapp_worker:v1
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: worker-app-deploy
+#   namespace: olumoko-voting-app
+#   labels:
+#     name: worker-app-deploy
+#     app: demo-voting-app
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       name: worker-app-pod
+#       app: demo-voting-app
+#   template:
+#     metadata:
+#       name: worker-app-pod
+#       labels:
+#         name: worker-app-pod
+#         app: demo-voting-app
+#     spec:
+#       containers:
+#         - name: worker-app
+#           image: kodekloud/examplevotingapp_worker:v1
+#           env:
+#             - name: POSTGRES_HOST
+#               value: "primary-olumoko.cmcuzrqejgir.eu-west-1.rds.amazonaws.com" # Replace with your RDS endpoint
+#             - name: POSTGRES_USER
+#               value: "postgres"
+#             - name: POSTGRES_DB
+#               value: "postgres"
+#             - name: POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: rds-secret
+#                   key: POSTGRES_PASSWORD # Make sure the secret is created
+# #           - name: POSTGRES_HOST_AUTH_METHOD
+# #             value: trust

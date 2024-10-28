@@ -7,7 +7,7 @@ metadata:
     name: result-app-deploy
     app: demo-voting-app
 spec:
-  replicas: 70
+  replicas:
   selector:
     matchLabels:
       name: result-app-pod
@@ -25,13 +25,57 @@ spec:
           ports:
           - containerPort: 80
 
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: result-app-deploy
+#   namespace: olumoko-voting-app
+#   labels:
+#     name: result-app-deploy
+#     app: demo-voting-app
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       name: result-app-pod
+#       app: demo-voting-app
+#   template:
+#     metadata:
+#       name: result-app-pod
+#       labels:
+#         name: result-app-pod
+#         app: demo-voting-app
+#     spec:
+#       containers:
+#         - name: result-app
+#           image: kodekloud/examplevotingapp_result:v1
+#           env:
+#             - name: POSTGRES_HOST
+#               value: "primary-olumoko.cmcuzrqejgir.eu-west-1.rds.amazonaws.com" # Replace with your RDS endpoint
+#             - name: POSTGRES_USER
+#               value: "postgres"
+#             - name: POSTGRES_DB
+#               value: "postgres"
+#             - name: POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: rds-secret
+#                   key: POSTGRES_PASSWORD # Make sure the secret is created
+#           ports:
+#             - containerPort: 80
+
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: result-service
+  name: result-service 
   namespace: olumoko-voting-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-alb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
   labels:
      name: result-service
      app: demo-voting-app

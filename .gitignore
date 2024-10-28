@@ -9,8 +9,8 @@
 crash.log
 
 # Exclude sensitive files
-*.tfvars
-*.tfvars.json
+#*.tfvars
+#*.tfvars.json
 
 # Ignore CLI configuration files
 .terraformrc
