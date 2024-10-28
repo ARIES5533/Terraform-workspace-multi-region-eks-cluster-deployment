@@ -97,8 +97,10 @@ jobs:
 
       - name: Deploy to EKS Cluster
         run: |
-          kubectl apply -f k8-manifest/ && \
-          kubectl apply -f k8-manifest/logging/
+          kubectl delete deployments --all -n olumoko-voting-app
+          kubectl delete services --all -n olumoko-voting-app
+          #kubectl apply -f k8-manifest/ && \
+          #kubectl apply -f k8-manifest/logging/
 
       - name: Verify Deployment
         run: |
