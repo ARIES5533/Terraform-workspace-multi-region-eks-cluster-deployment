@@ -9,7 +9,6 @@ jobs:
 
   docker_build:
     name: Build, Test & Push to DockerHub
-    needs: [unit_testing]
     runs-on: ubuntu-latest
 
     steps:
