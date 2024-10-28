@@ -9,6 +9,7 @@ jobs:
 
   docker_build:
     name: Build, Test & Push to DockerHub
+
     runs-on: ubuntu-latest
 
     steps:
@@ -23,13 +24,15 @@ jobs:
 
       - name: Docker build for testing
         run: |
-          docker build mod/application/vote --file mod/application/vote/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+          #docker build mod/application/vote --file mod/application/vote/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+
+          docker build PIP/mod/application/vote . --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/olumoko_image:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
   trivy_scan:
     name: Scan Docker Image for Vulnerabilities
-    needs: [docker_build]
     runs-on: ubuntu-latest
+    needs: [docker_build]
 
     steps:
       - name: Check out code
@@ -57,7 +60,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: trivy_scan
-
     strategy:
       matrix:
         region: [us-west-2, eu-west-1]
