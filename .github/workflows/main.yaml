@@ -23,7 +23,7 @@ jobs:
 
       - name: Docker build for testing
         run: |
-          docker build PIP/mod/application/vote --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+          docker build mod/application/vote --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/olumoko_image:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
   trivy_scan:
