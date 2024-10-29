@@ -12,7 +12,8 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name  = var.db_subnet_group_name
   skip_final_snapshot   = true
   multi_az              = true
-  publicly_accessible   = false
+  publicly_accessible   = true
+
 
   vpc_security_group_ids = [var.db_security_group_id]
 

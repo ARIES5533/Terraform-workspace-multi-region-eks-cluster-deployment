@@ -53,7 +53,9 @@ output "vpc_private_subnets" {
 resource "aws_db_subnet_group" "olumoko-subnet" {
   name        = "${terraform.workspace}-db-subnet-group"
   description = "Subnet group for RDS instance"
-  subnet_ids  = module.olumoko_vpc.private_subnets
+  #subnet_ids  = module.olumoko_vpc.private_subnets
+  subnet_ids  = concat(module.olumoko_vpc.private_subnets, module.olumoko_vpc.public_subnets)
+
 
   tags = {
     Name = "Olumoko-${terraform.workspace}-DB-Subnet-Group"
