@@ -28,12 +28,7 @@ jobs:
 
       - name: Docker build for testing
         run: |
-          #docker build -t aries5533/voting-app:latest -f ./mod/application/vote/Dockerfile ./mod/application/vote/
-          #docker build mod/application/vote --file mod/application/vote/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
-          #docker buildx build --file mod/application/vote/Dockerfile mod/application/vote --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
-          #docker build ../mod/application/vote --file Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
           docker build -f ${{ github.workspace }}/application/vote/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ github.workspace }}/application/vote
-
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
   trivy_scan:
