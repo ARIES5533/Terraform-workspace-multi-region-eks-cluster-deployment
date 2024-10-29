@@ -28,7 +28,11 @@ jobs:
 
       - name: Docker build for testing
         run: |
-          echo "BUILDING AND TAGGING VOTE APP"
+
+          echo "#############
+          BUILDING AND TAGGING VOTE APP
+          ####################"
+
           docker build -f ${{ github.workspace }}/application/vote/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ github.workspace }}/application/vote
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
@@ -39,6 +43,11 @@ jobs:
           echo "BUILDING AND TAGGING WORKER APP"
           docker build -f ${{ github.workspace }}/application/worker/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:latest ${{ github.workspace }}/application/worker
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:${{ github.run_number }}
+
+      - name: Push images to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
  
   trivy_scan:
