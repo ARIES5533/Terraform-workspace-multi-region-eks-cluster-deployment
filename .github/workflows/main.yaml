@@ -8,7 +8,7 @@ on:
 jobs:
 
   docker_build:
-    name: Build, Test & Push to DockerHub
+    name: Build & Push to DockerHub
     runs-on: ubuntu-latest
 
     steps:
@@ -36,18 +36,41 @@ jobs:
           docker build -f ${{ github.workspace }}/application/vote/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ github.workspace }}/application/vote
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
 
-          echo "BUILDING AND TAGGING RESULT APP"
+          echo "##############
+          BUILDING AND TAGGING RESULT APP
+          #######################"
           docker build -f ${{ github.workspace }}/application/result/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/result-app:latest ${{ github.workspace }}/application/result
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/result-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/result-app:${{ github.run_number }}
           
-          echo "BUILDING AND TAGGING WORKER APP"
+          echo "###############
+          BUILDING AND TAGGING WORKER APP
+          #####################"
           docker build -f ${{ github.workspace }}/application/worker/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:latest ${{ github.workspace }}/application/worker
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:${{ github.run_number }}
 
       - name: Push images to Docker Hub
         run: |
+
+          echo "#############
+          PUSHING VOTER APP IMAGE
+          ####################"
+
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/voting-app:${{ github.run_number }}
+
+          echo "#############
+          PUSHING WORKER APP IMAGE
+          ####################"
+
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/worker-app:${{ github.run_number }}
+
+          echo "#############
+          PUSHING RESULT APP IMAGE
+          ####################"
+
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/result-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/result-app:${{ github.run_number }}
 
  
   trivy_scan:
@@ -67,16 +90,29 @@ jobs:
 
       - name: Scan Docker image with Trivy
         run: |
-          echo "Scanning Docker image for vulnerabilities for POSTGRES..."
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.POSTGRES_IMAGE }}
-          echo "Scanning Docker image for vulnerabilities for REDIS..."
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.REDIS_IMAGE }}
-          echo "Scanning Docker image for vulnerabilities for RESULT_APP..."
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.RESULT_APP_IMAGE }}
-          echo "Scanning Docker image for vulnerabilities for VOTING_APP..."
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.VOTING_APP_IMAGE }}
-          echo "Scanning Docker image for vulnerabilities for WORKER_APP..."
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.WORKER_APP_IMAGE }}
+          echo "#####################
+          Scanning VOTING APP image for vulnerabilities...
+          ##############################"
+
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/voting_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/voting_image:${{ github.run_number }}
+
+          echo "#########################
+          Scanning RESULT APP image for vulnerabilities...
+          ######################"
+
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/result_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/result_image:${{ github.run_number }}
+
+          echo "###################
+          Scanning WORKER APP image for vulnerabilities...
+          #########################"
+
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/worker_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/worker_image:${{ github.run_number }}
+
+
+
 
   deploy:
     runs-on: ubuntu-latest
@@ -118,10 +154,10 @@ jobs:
 
       - name: Deploy to EKS Cluster
         run: |
-          kubectl delete deployments --all -n olumoko-voting-app
-          kubectl delete services --all -n olumoko-voting-app
-          #kubectl apply -f k8-manifest/ && \
-          #kubectl apply -f k8-manifest/logging/
+          #kubectl delete deployments --all -n olumoko-voting-app
+          #kubectl delete services --all -n olumoko-voting-app
+          kubectl apply -f k8-manifest/ && \
+          kubectl apply -f k8-manifest/logging/
 
       - name: Verify Deployment
         run: |
