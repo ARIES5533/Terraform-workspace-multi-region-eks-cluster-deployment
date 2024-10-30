@@ -94,19 +94,19 @@ jobs:
           Scanning VOTING APP image for vulnerabilities...
           ##############################"
 
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/voting_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/voting-image:latest
 
           echo "#########################
           Scanning RESULT APP image for vulnerabilities...
           ######################"
 
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/result_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/result-image:latest
 
           echo "###################
           Scanning WORKER APP image for vulnerabilities...
           #########################"
 
-          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/worker_image:latest
+          trivy image --severity HIGH,CRITICAL --format table ${{ secrets.DOCKERHUB_USERNAME }}/worker-image:latest
 
 
 
