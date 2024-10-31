@@ -26,12 +26,30 @@ spec:
         ports:
         - containerPort: 5432
         env:
+          - name: POSTGRES_HOST
+            value: "primary-region-olumoko.cmcuzrqejgir.eu-west-1.rds.amazonaws.com" # Replace with your RDS endpoint
           - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: rds-credentials
+                key: POSTGRES_USER # Pulling from the secret
+          - name: POSTGRES_DB
             value: "postgres"
           - name: POSTGRES_PASSWORD
-            value: "postgres"
-          - name: POSTGRES_HOST_AUTH_METHOD
-            value: trust
+            valueFrom:
+              secretKeyRef:
+                name: rds-credentials
+                key: POSTGRES_PASSWORD # Make sure the secret is created
+          # - name: POSTGRES_HOST_AUTH_METHOD
+          #   value: trust
+
+
+          # - name: POSTGRES_USER
+          #   value: "postgres"
+          # - name: POSTGRES_PASSWORD
+          #   value: "postgres"
+          # - name: POSTGRES_HOST_AUTH_METHOD
+          #   value: trust
 
 ---
 apiVersion: v1
