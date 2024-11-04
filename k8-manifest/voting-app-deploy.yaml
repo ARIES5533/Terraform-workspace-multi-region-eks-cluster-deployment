@@ -31,18 +31,19 @@ kind: Service
 metadata:
   name: voting-service  
   namespace: olumoko-voting-app
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: external
-    service.beta.kubernetes.io/aws-load-balancer-alb-target-type: ip
-    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-type: external
+  #   service.beta.kubernetes.io/aws-load-balancer-alb-target-type: ip
+  #   service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
   labels:
     name: voting-service
     app: demo-voting-app
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 80
+    protocol: TCP
   selector:
     name: voting-app-pod
     app: demo-voting-app

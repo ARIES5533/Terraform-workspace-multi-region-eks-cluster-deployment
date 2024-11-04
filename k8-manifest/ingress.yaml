@@ -28,3 +28,51 @@
 #                 name: result-service
 #                 port:
 #                   number: 8080
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: voting-app-ingress
+  namespace: olumoko-voting-app
+  annotations:
+    #kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: groupv1-appab
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /vote
+            pathType: Prefix
+            backend:
+              service:
+                name: voting-service
+                port:
+                  number: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: result-app-ingress
+  namespace: olumoko-voting-app
+  annotations:
+    #kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: groupv1-appab
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /result
+            pathType: Prefix
+            backend:
+              service:
+                name: result-service
+                port:
+                  number: 80
